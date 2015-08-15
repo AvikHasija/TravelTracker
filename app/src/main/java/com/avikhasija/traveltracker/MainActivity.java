@@ -1,8 +1,11 @@
 package com.avikhasija.traveltracker;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -12,12 +15,20 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements OnMapReadyCallback,
-            GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+        GoogleMap.OnMapClickListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
-    GoogleMap mMap;
+    private static final String TAG = "MainActivity";
+
+    private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -35,6 +46,30 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMyLocationEnabled(true);
+        mMap.setOnMapClickListener(this);
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        Log.d(TAG, "Latlng is: " + latLng);
+
+        Geocoder geocoder = new Geocoder(this);
+        List<Address> matches = null;
+        try {
+            matches = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Address bestMatch = (matches.isEmpty()) ? null : matches.get(0);
+        int maxLine = bestMatch.getMaxAddressLineIndex()
+
+        Log.d(TAG, "best match is " +bestMatch);
+
+        mMap.addMarker(new MarkerOptions()
+            .position(latLng)
+            .title(bestMatch.getAddressLine(maxLine - 1)) //city
+            .snippet(bestMatch.getAddressLine(maxLine))); //country
     }
 
     private void addGoogleAPIClient(){
