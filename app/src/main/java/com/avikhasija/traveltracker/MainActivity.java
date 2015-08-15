@@ -16,9 +16,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -30,6 +32,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
+    private HashMap<String, Memory> mMemories = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +50,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         mMap = googleMap;
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
+        mMap.setInfoWindowAdapter(new MarkerAdapter(getLayoutInflater(), mMemories));
     }
 
     @Override
@@ -62,14 +66,22 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         }
 
         Address bestMatch = (matches.isEmpty()) ? null : matches.get(0);
-        int maxLine = bestMatch.getMaxAddressLineIndex()
-
         Log.d(TAG, "best match is " +bestMatch);
 
-        mMap.addMarker(new MarkerOptions()
-            .position(latLng)
-            .title(bestMatch.getAddressLine(maxLine - 1)) //city
-            .snippet(bestMatch.getAddressLine(maxLine))); //country
+        int maxLine = bestMatch.getMaxAddressLineIndex();
+
+        Memory memory = new Memory();
+        memory.city = bestMatch.getAddressLine(maxLine - 1);
+        memory.country = bestMatch.getAddressLine(maxLine);
+        memory.latitude = latLng.latitude;
+        memory.latitude = latLng.longitude;
+        memory.notes = "My notes!!";
+
+        Marker marker = mMap.addMarker(new MarkerOptions()
+                .position(latLng));
+
+        mMemories.put(marker.getId(), memory);
+
     }
 
     private void addGoogleAPIClient(){
