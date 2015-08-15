@@ -1,10 +1,12 @@
 package com.avikhasija.traveltracker;
 
+import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +31,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     private static final String TAG = "MainActivity";
+    private static final String MEMORY_DIALOG_TAG = "MainActivity";
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
@@ -76,6 +79,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         memory.latitude = latLng.latitude;
         memory.latitude = latLng.longitude;
         memory.notes = "My notes!!";
+
+        new MemoryDialogFragment().show(getFragmentManager(),MEMORY_DIALOG_TAG);
 
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(latLng));
